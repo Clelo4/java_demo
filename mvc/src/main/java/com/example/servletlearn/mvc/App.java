@@ -15,7 +15,7 @@ public class App {
         tomcat.setPort(Integer.getInteger("port", 8081));
         tomcat.getConnector();
         // 创建webapp:
-        Context ctx = tomcat.addWebapp("", new File("src/main/webapp").getAbsolutePath());
+        Context ctx = tomcat.addWebapp("/mvc", new File("src/main/webapp").getAbsolutePath());
         WebResourceRoot resources = new StandardRoot(ctx);
         resources.addPreResources(
                 new DirResourceSet(resources, "/WEB-INF/classes", new File("target/classes").getAbsolutePath(), "/"));

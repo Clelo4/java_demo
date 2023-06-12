@@ -1,5 +1,6 @@
 package com.example.servletlearn.mvc.framework;
 
+import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -20,7 +21,6 @@ public class MyDispatcherServlet extends HttpServlet {
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final Map<String, GetDispatcher> getMappings = new HashMap<>();
     private final Map<String, PostDispatcher> postMappings = new HashMap<>();
-    private final List<Class<?>> controllers;
     private static final Set<Class<?>> supportedGetParameterTypes = Set.of(int.class, long.class, boolean.class,
             String.class, HttpServletRequest.class, HttpServletResponse.class, HttpSession.class);
     private static final Set<Class<?>> supportedPostParameterTypes = Set.of(HttpServletRequest.class,
@@ -28,12 +28,14 @@ public class MyDispatcherServlet extends HttpServlet {
     private ViewEngine viewEngine;
     public MyDispatcherServlet() {
         super();
-        this.controllers = this.scanControllers("com.example.servletlearn.mvc.controller");
     }
 
     @Override
     public void init() throws ServletException {
         logger.info("init {}...", getClass().getSimpleName());
+
+        List<Class<?>> controllers = this.scanControllers("com.example.servletlearn.mvc.controller");
+
         for (Class<?> controllerClass : controllers) {
             try {
                 Object controllerInstance = controllerClass.getDeclaredConstructor().newInstance();
@@ -91,7 +93,8 @@ public class MyDispatcherServlet extends HttpServlet {
     }
 
     private List<Class<?>> scanControllers(String packageName) {
-        InputStream stream = ClassLoader.getSystemClassLoader().getResourceAsStream(packageName.replaceAll("[.]", "/"));
+        ServletContext context = getServletContext();
+        InputStream stream = context.getClassLoader().getResourceAsStream(packageName.replaceAll("[.]", "/"));
         assert stream != null;
         BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
 

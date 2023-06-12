@@ -49,11 +49,13 @@
             <groupId>org.apache.tomcat.embed</groupId>
             <artifactId>tomcat-embed-core</artifactId>
             <version>${tomcat.version}</version>
+<!--            <scope>provided</scope>-->
         </dependency>
         <dependency>
             <groupId>org.apache.tomcat.embed</groupId>
             <artifactId>tomcat-embed-jasper</artifactId>
             <version>${tomcat.version}</version>
+<!--            <scope>provided</scope>-->
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -68,6 +70,7 @@
     </dependencies>
 
     <build>
+        <finalName>mvc</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
