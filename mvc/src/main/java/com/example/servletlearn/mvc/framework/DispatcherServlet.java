@@ -1,7 +1,6 @@
 package com.example.servletlearn.mvc.framework;
 
 import jakarta.servlet.ServletContext;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,7 +16,7 @@ import java.lang.reflect.Parameter;
 import java.util.*;
 
 @WebServlet(urlPatterns = "/*")
-public class MyDispatcherServlet extends HttpServlet {
+public class DispatcherServlet extends HttpServlet {
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final Map<String, GetDispatcher> getMappings = new HashMap<>();
     private final Map<String, PostDispatcher> postMappings = new HashMap<>();
@@ -26,12 +25,12 @@ public class MyDispatcherServlet extends HttpServlet {
     private static final Set<Class<?>> supportedPostParameterTypes = Set.of(HttpServletRequest.class,
             HttpServletResponse.class, HttpSession.class);
     private ViewEngine viewEngine;
-    public MyDispatcherServlet() {
+    public DispatcherServlet() {
         super();
     }
 
     @Override
-    public void init() throws ServletException {
+    public void init() {
         logger.info("init {}...", getClass().getSimpleName());
 
         List<Class<?>> controllers = this.scanControllers("com.example.servletlearn.mvc.controller");
@@ -74,7 +73,7 @@ public class MyDispatcherServlet extends HttpServlet {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
             return;
         }
-        ModelAndView mv = null;
+        ModelAndView mv;
         try {
             mv = dispatcher.invoke(request, response);
         } catch (ReflectiveOperationException e) {
@@ -89,22 +88,23 @@ public class MyDispatcherServlet extends HttpServlet {
         }
         PrintWriter pw = response.getWriter();
         this.viewEngine.render(mv, pw);
-        pw.flush();;
+        pw.flush();
     }
 
     private List<Class<?>> scanControllers(String packageName) {
-        ServletContext context = getServletContext();
-        InputStream stream = context.getClassLoader().getResourceAsStream(packageName.replaceAll("[.]", "/"));
-        assert stream != null;
-        BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+        return scanControllersV1(packageName);
+    }
 
+    private List<Class<?>> scanControllersV1(String packageName) {
+        ServletContext context = getServletContext();
+        Set<String> fileSet = context.getResourcePaths("/WEB-INF/classes/" + packageName.replaceAll("[.]", "/"));
         List<Class<?>> controllers = new ArrayList<>();
-        reader
-            .lines()
-            .filter(line -> line.endsWith(".class"))
-            .forEach(className -> {
+        fileSet.stream()
+            .filter(classFullName -> classFullName.endsWith(".class"))
+            .forEach(classFullName -> {
                 try {
-                    Class<?> res = Class.forName(packageName + "." + className.substring(0, className.lastIndexOf(".")));
+                    String className = classFullName.substring(classFullName.lastIndexOf("/") + 1, classFullName.lastIndexOf("."));
+                    Class<?> res = Class.forName(packageName + "." + className);
                     controllers.add(res);
                 } catch (ClassNotFoundException e) {
                     e.printStackTrace();
@@ -124,17 +124,9 @@ public class MyDispatcherServlet extends HttpServlet {
         }
         String path = method.getAnnotation(GetMapping.class).value();
         logger.info("Found GET: {} => {}", path, method);
-        String[] parameterNames = Arrays.stream(method.getParameters()).map(
-                p -> p.getName()
-        ).toArray(String[]::new);
+        String[] parameterNames = Arrays.stream(method.getParameters()).map(Parameter::getName).toArray(String[]::new);
         this.getMappings.put(path, new GetDispatcher(controllerInstance, method, parameterNames, method.getParameterTypes()));
     }
     private void scanPostMappings(Object controllerInstance, Method method) {
-
-//        String path = method.getAnnotation(PostMapping.class).value();
-//        logger.info("Found POST: {} => {}", path, method);
-//        String[] parameterNames = Arrays.stream(method.getParameters()).map(Parameter::getName).toArray(String[]::new);
-//        this.postMappings.put(path, new PostDispatcher(controllerInstance, method, parameterNames, method.getParameterTypes()));
-
     }
 }
