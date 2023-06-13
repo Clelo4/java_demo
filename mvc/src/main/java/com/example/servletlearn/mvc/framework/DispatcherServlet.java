@@ -1,5 +1,7 @@
 package com.example.servletlearn.mvc.framework;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -25,8 +27,11 @@ public class DispatcherServlet extends HttpServlet {
     private static final Set<Class<?>> supportedPostParameterTypes = Set.of(HttpServletRequest.class,
             HttpServletResponse.class, HttpSession.class);
     private ViewEngine viewEngine;
+    private ObjectMapper objectMapper;
     public DispatcherServlet() {
         super();
+        this.objectMapper = new ObjectMapper();
+        this.objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
     @Override
@@ -128,5 +133,18 @@ public class DispatcherServlet extends HttpServlet {
         this.getMappings.put(path, new GetDispatcher(controllerInstance, method, parameterNames, method.getParameterTypes()));
     }
     private void scanPostMappings(Object controllerInstance, Method method) {
+        if (method.getReturnType() != ModelAndView.class && method.getReturnType() != void.class) {
+            throw new UnsupportedOperationException("Unsupported return type: " + method.getReturnType() + " for method: " + method);
+        }
+        int customBeanCounter = 0;
+        for (Class<?> parameterClass : method.getParameterTypes()) {
+            if (!supportedGetParameterTypes.contains(parameterClass)) {
+                customBeanCounter++;
+            }
+        }
+        if (customBeanCounter > 1) throw new UnsupportedOperationException("Unsupported more than one parameter type for method: " + method);
+        String path = method.getAnnotation(PostMapping.class).value();
+        logger.info("Found POST: {} => {}", path, method);
+        this.postMappings.put(path, new PostDispatcher(controllerInstance, method, method.getParameterTypes(), objectMapper));
     }
 }
