@@ -12,17 +12,19 @@ public class PostDispatcher extends AbstractDispatcher {
     private final Object instance;
     private final Method method;
     private final Class<?>[] parameterClasses;
-    private final ObjectMapper objectMapper;
+    private final Class<?> returnClass;
+    private final RenderEngine engine;
 
-    public PostDispatcher(Object instance, Method method, Class<?>[] parameterClasses, ObjectMapper objectMapper) {
+    public PostDispatcher(Object instance, Method method, Class<?>[] parameterClasses, Class<?> returnClass, RenderEngine engine) {
         this.instance = instance;
         this.method = method;
         this.parameterClasses = parameterClasses;
-        this.objectMapper = objectMapper;
+        this.returnClass = returnClass;
+        this.engine = engine;
     }
 
     @Override
-    public ModelAndView invoke(HttpServletRequest request, HttpServletResponse response) throws IOException, ReflectiveOperationException {
+    public void invoke(HttpServletRequest request, HttpServletResponse response) {
         Object[] arguments = new Object[parameterClasses.length];
         for (int i = 0; i < parameterClasses.length; ++i) {
             Class<?> parameterClass = parameterClasses[i];
@@ -31,10 +33,15 @@ public class PostDispatcher extends AbstractDispatcher {
             } else if (parameterClass == HttpServletResponse.class) {
                 arguments[i] = response;
             } else {
-                BufferedReader buffer = request.getReader();
-                arguments[i] = this.objectMapper.readValue(buffer, parameterClass);
+                BufferedReader buffer = null;
+                try {
+                    buffer = request.getReader();
+//                    arguments[i] = this.objectMapper.readValue(buffer, parameterClass);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
-        return (ModelAndView) this.method.invoke(instance, arguments);
+//        return (ModelAndView) this.method.invoke(instance, arguments);
     }
 }

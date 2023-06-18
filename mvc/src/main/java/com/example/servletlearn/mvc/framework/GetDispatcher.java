@@ -3,6 +3,8 @@ package com.example.servletlearn.mvc.framework;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
@@ -11,17 +13,21 @@ public class GetDispatcher extends AbstractDispatcher {
     private final Method method;
     private final String[] parameterNames;
     private final Class<?>[] parameterClasses;
+    private final Class<?> returnClass;
+    private final RenderEngine engine;
 
-    public GetDispatcher(Object instance, Method method, String[] parameterNames, Class<?>[] parameterClasses) {
+    public GetDispatcher(Object instance, Method method, String[] parameterNames, Class<?>[] parameterClasses, Class<?> returnClass, RenderEngine engine) {
         super();
         this.instance = instance;
         this.method = method;
         this.parameterNames = parameterNames;
         this.parameterClasses = parameterClasses;
+        this.returnClass = returnClass;
+        this.engine = engine;
     }
 
     @Override
-    public ModelAndView invoke(HttpServletRequest request, HttpServletResponse response) throws InvocationTargetException, IllegalAccessException {
+    public void invoke(HttpServletRequest request, HttpServletResponse response) {
         Object[] arguments = new Object[parameterClasses.length];
         for (int i = 0; i < parameterClasses.length; i++) {
             String parameterName = parameterNames[i];
@@ -43,7 +49,12 @@ public class GetDispatcher extends AbstractDispatcher {
             }
         }
 
-        return (ModelAndView) this.method.invoke(this.instance, arguments);
+        try {
+            Object data = this.method.invoke(this.instance, arguments);
+            this.engine.render(request, response, this.returnClass, data);
+        } catch (IllegalAccessException | InvocationTargetException | IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private String getOrDefault(HttpServletRequest request, String name, String defaultValue) {

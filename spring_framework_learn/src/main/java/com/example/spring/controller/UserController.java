@@ -5,6 +5,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
 public class UserController {
-    @GetMapping("/userInfo")
-    public void getUserInfo() {}
+    @GetMapping("/hello")
+    public String hello() {
+        return "hello";
+    }
 }
