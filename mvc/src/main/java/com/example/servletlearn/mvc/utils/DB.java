@@ -5,6 +5,11 @@ import java.sql.*;
 public class DB {
     private final Connection conn;
     public DB() throws SQLException {
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
         String JDBC_URL = "jdbc:mysql://localhost:3306/test?useSSL=false&characterEncoding=UTF-8";
         this.conn = DriverManager.getConnection(JDBC_URL, "root", "SetRootPasswordHere@xxx1!");
     }
