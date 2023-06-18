@@ -10,7 +10,6 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>com.example</groupId>
     <artifactId>spring_framework_learn</artifactId>
     <version>1.0-SNAPSHOT</version>
     <name>SpringFrameworkLearn</name>
@@ -20,7 +19,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>20</java.version>
         <spring.version>6.0.9</spring.version>
-        <tomcat.version>10.1.1</tomcat.version>
+        <tomcat.version>10.1.6</tomcat.version>
+        <pebble.version>3.1.6</pebble.version>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <maven.compiler.source>${java.version}</maven.compiler.source>
     </properties>
@@ -46,7 +46,7 @@
             <groupId>jakarta.servlet</groupId>
             <artifactId>jakarta.servlet-api</artifactId>
             <version>5.0.0</version>
-<!--            <scope>provided</scope>-->
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.tomcat.embed</groupId>
@@ -59,6 +59,17 @@
             <artifactId>tomcat-embed-jasper</artifactId>
             <version>${tomcat.version}</version>
 <!--            <scope>provided</scope>-->
+        </dependency>
+        <dependency>
+            <groupId>io.pebbletemplates</groupId>
+            <artifactId>pebble-spring-boot-starter</artifactId>
+            <version>${pebble.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>3.1.0</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
