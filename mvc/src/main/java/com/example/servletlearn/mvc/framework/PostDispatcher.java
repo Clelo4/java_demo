@@ -1,11 +1,13 @@
 package com.example.servletlearn.mvc.framework;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class PostDispatcher extends AbstractDispatcher {
@@ -33,15 +35,21 @@ public class PostDispatcher extends AbstractDispatcher {
             } else if (parameterClass == HttpServletResponse.class) {
                 arguments[i] = response;
             } else {
-                BufferedReader buffer = null;
-                try {
-                    buffer = request.getReader();
-//                    arguments[i] = this.objectMapper.readValue(buffer, parameterClass);
+                try (BufferedReader buffer = request.getReader()) {
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+                    arguments[i] = objectMapper.readValue(buffer, parameterClass);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
             }
         }
-//        return (ModelAndView) this.method.invoke(instance, arguments);
+
+        try {
+            Object data = this.method.invoke(this.instance, arguments);
+            this.engine.render(request, response, this.returnClass, data);
+        } catch (IllegalAccessException | InvocationTargetException | IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

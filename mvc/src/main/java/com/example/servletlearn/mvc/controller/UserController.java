@@ -1,15 +1,13 @@
 package com.example.servletlearn.mvc.controller;
 
+import com.example.servletlearn.mvc.bean.Response;
 import com.example.servletlearn.mvc.bean.User;
 import com.example.servletlearn.mvc.framework.GetMapping;
 import com.example.servletlearn.mvc.framework.ModelAndView;
 import com.example.servletlearn.mvc.framework.PostMapping;
 import com.example.servletlearn.mvc.utils.DB;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 
 public class UserController {
     @GetMapping("/user")
@@ -53,7 +51,33 @@ public class UserController {
     }
 
     @PostMapping("/addUser")
-    public ModelAndView addUser(User user) {
-        return new ModelAndView("./index.html", "name", user.username());
+    public Response addUser(User user) {
+        try {
+            DB db = new DB();
+
+            try (
+                    Connection conn = db.getConn();
+                    PreparedStatement stmt = conn.prepareStatement("INSERT INTO user (username, email, password) VALUES (?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
+            ) {
+                stmt.setString(1, user.username());
+                stmt.setString(2, user.email());
+                stmt.setString(3, user.password());
+                int n = stmt.executeUpdate();
+
+                if (n == 0) return new Response(1, "ERROR");
+
+                try (ResultSet rs = stmt.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        long id = rs.getLong(1); // 注意：索引从1开始
+                        return new Response(0, "success: " + id);
+                    }
+                }
+
+                return new Response(0, "success");
+            }
+
+        } catch (SQLException e) {
+            return new Response(e.getErrorCode(), e.getMessage());
+        }
     }
 }
