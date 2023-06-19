@@ -3,9 +3,7 @@ package com.example.spring.controller;
 import com.example.spring.service.User;
 import com.example.spring.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -14,8 +12,26 @@ import java.util.List;
 public class TestController {
     @Autowired
     UserService userService;
+
+    record UserRequestBody(String username, String email, String password) {}
+
     @GetMapping("/users")
     public List<User> users() {
-        return UserService.getUsers();
+        return userService.getUsers(1, 10);
+    }
+
+    @GetMapping("/getUserById")
+    public User getUserById(@RequestParam(name = "id") long id) {
+        return userService.getUserById(id);
+    }
+
+    @GetMapping("/getUserByName")
+    public User getUserByName(@RequestParam(name = "name") String name) {
+        return userService.getUserByName(name);
+    }
+
+    @PostMapping("/addUser")
+    public User addUser(@RequestBody UserRequestBody user) {
+        return userService.addUser(user.username(), user.email(), user.password());
     }
 }
