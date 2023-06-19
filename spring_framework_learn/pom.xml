@@ -20,7 +20,8 @@
         <java.version>20</java.version>
         <spring.version>6.0.9</spring.version>
         <tomcat.version>10.1.6</tomcat.version>
-        <pebble.version>3.1.6</pebble.version>
+        <pebble.version>3.2.0</pebble.version>
+        <jackson.version>2.12.7.1</jackson.version>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <maven.compiler.source>${java.version}</maven.compiler.source>
     </properties>
@@ -46,7 +47,7 @@
             <groupId>jakarta.servlet</groupId>
             <artifactId>jakarta.servlet-api</artifactId>
             <version>5.0.0</version>
-            <scope>provided</scope>
+<!--            <scope>provided</scope>-->
         </dependency>
         <dependency>
             <groupId>org.apache.tomcat.embed</groupId>
@@ -60,16 +61,16 @@
             <version>${tomcat.version}</version>
 <!--            <scope>provided</scope>-->
         </dependency>
+        <!-- 集成Pebble View -->
         <dependency>
             <groupId>io.pebbletemplates</groupId>
-            <artifactId>pebble-spring-boot-starter</artifactId>
+            <artifactId>pebble-spring6</artifactId>
             <version>${pebble.version}</version>
         </dependency>
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <version>3.1.0</version>
-            <scope>provided</scope>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson.version}</version>
         </dependency>
     </dependencies>
 

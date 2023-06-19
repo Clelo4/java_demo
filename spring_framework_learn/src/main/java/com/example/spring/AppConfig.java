@@ -1,8 +1,8 @@
 package com.example.spring;
 
-import com.mitchellbosecke.pebble.PebbleEngine;
-import com.mitchellbosecke.pebble.loader.Servlet5Loader;
-import com.mitchellbosecke.pebble.spring.servlet.PebbleViewResolver;
+import io.pebbletemplates.pebble.PebbleEngine;
+import io.pebbletemplates.pebble.loader.Servlet5Loader;
+import io.pebbletemplates.spring.servlet.PebbleViewResolver;
 import jakarta.servlet.ServletContext;
 import org.apache.catalina.Context;
 import org.apache.catalina.WebResourceRoot;
@@ -15,6 +15,8 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.io.File;
 
@@ -46,5 +48,15 @@ public class AppConfig {
         viewResolver.setPrefix("/WEB-INF/templates");
         viewResolver.setSuffix("");
         return viewResolver;
+    }
+
+    @Bean
+    WebMvcConfigurer createWebMvcConfigurer() {
+        return new WebMvcConfigurer() {
+            @Override
+            public void addResourceHandlers(ResourceHandlerRegistry registry) {
+                registry.addResourceHandler("/static/**").addResourceLocations("/static/");
+            }
+        };
     }
 }
