@@ -26,6 +26,7 @@ import java.io.File;
 @Configuration
 @ComponentScan
 @EnableWebMvc
+@EnableAspectJAutoProxy
 @PropertySource("classpath://jdbc.properties")
 public class AppConfig {
     @Value("${jdbc.url}")
@@ -74,7 +75,8 @@ public class AppConfig {
     }
 
     @Bean
-    DataSource createDateSource() {
+    DataSource createDateSource() throws ClassNotFoundException {
+        Class.forName("com.mysql.jdbc.Driver");
         HikariConfig config = new HikariConfig();
         config.setJdbcUrl(jdbcURL);
         config.setUsername(jdbcUsername);
