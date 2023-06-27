@@ -14,5 +14,6 @@
         <module>basic</module>
         <module>mvc</module>
         <module>spring_framework_learn</module>
+        <module>spring_xml</module>
     </modules>
 </project>

@@ -22,6 +22,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import javax.sql.DataSource;
 import java.io.File;
+import java.util.ServiceLoader;
 
 @Configuration
 @ComponentScan
@@ -87,7 +88,6 @@ public class AppConfig {
         config.addDataSourceProperty("autoCommit", "true");
         config.addDataSourceProperty("connectionTimeout", "5");
         config.addDataSourceProperty("idleTimeout", "60");
-
         return new HikariDataSource(config);
     }
 
