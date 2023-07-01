@@ -4,5 +4,5 @@ public class ControllerConstant {
     public static final String user="/user";
     public static final String httpCode = "/httpCode";
 
-    public static final String openAI = "/api/openAI";
+    public static final String openAI = "/api/openai";
 }

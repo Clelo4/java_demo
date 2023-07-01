@@ -13,7 +13,7 @@ import java.io.File;
 public class AppConfig {
     public static void main(String[] args) throws Exception {
         Tomcat tomcat = new Tomcat();
-        tomcat.setPort(Integer.getInteger("port", 8085));
+        tomcat.setPort(Integer.getInteger("port", 8086));
         tomcat.getConnector();
         Context ctx = tomcat.addWebapp("", new File("src/main/webapp").getAbsolutePath());
         WebResourceRoot resources = new StandardRoot(ctx);
