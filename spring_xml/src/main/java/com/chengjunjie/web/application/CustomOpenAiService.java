@@ -13,7 +13,7 @@ import java.time.Duration;
 
 @Component
 public class CustomOpenAiService extends OpenAiService {
-    private static final Duration DEFAULT_TIMEOUT = Duration.ofSeconds(5);
+    private static final Duration DEFAULT_TIMEOUT = Duration.ofSeconds(20);
 
     public CustomOpenAiService() {
         super(getAPI());

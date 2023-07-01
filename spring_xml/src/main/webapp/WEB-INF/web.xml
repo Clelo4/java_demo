@@ -42,4 +42,25 @@
 <!--        <error-code>500</error-code>-->
 <!--        <location>/WEB-INF/error.jsp</location>-->
 <!--    </error-page>-->
+
+<!--    <filter>-->
+<!--        <filter-name>encodingFilter</filter-name>-->
+<!--        <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>-->
+<!--        <init-param>-->
+<!--            <param-name>encoding</param-name>-->
+<!--            <param-value>UTF-8</param-value>-->
+<!--        </init-param>-->
+<!--        <init-param>-->
+<!--            <param-name>forceEncoding</param-name>-->
+<!--            <param-value>false</param-value>-->
+<!--        </init-param>-->
+<!--        <async-supported>true</async-supported>-->
+<!--    </filter>-->
+
+<!--    <filter-mapping>-->
+<!--        <filter-name>encodingFilter</filter-name>-->
+<!--        <url-pattern>/*</url-pattern>-->
+<!--        <dispatcher>REQUEST</dispatcher>-->
+<!--        <dispatcher>ASYNC</dispatcher>-->
+<!--    </filter-mapping>-->
 </web-app>
