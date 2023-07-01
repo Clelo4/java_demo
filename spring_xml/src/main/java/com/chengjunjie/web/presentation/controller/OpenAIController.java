@@ -55,7 +55,7 @@ public class OpenAIController {
             .model("gpt-3.5-turbo-0613")
             .temperature(0.0)
             .topP(0.0)
-            .maxTokens(600)
+            .maxTokens(100)
             .frequencyPenalty(0.0)
             .presencePenalty(0.0)
             .messages(messageList).build();
@@ -65,11 +65,9 @@ public class OpenAIController {
         ExecutorService sseMvcExecutor = Executors.newSingleThreadExecutor();
         sseMvcExecutor.execute(() -> {
             try {
-                resultStream.forEach(chatCompletionChunk -> {
-                    SseEmitter.SseEventBuilder event = SseEmitter.event()
-                            .data(chatCompletionChunk);
+                resultStream.doOnComplete(emitter::complete).forEach(chatCompletionChunk -> {
+                    SseEmitter.SseEventBuilder event = SseEmitter.event().data(chatCompletionChunk);
                     emitter.send(event);
-                    Thread.sleep(100);
                 });
             } catch (Exception ex) {
                 emitter.completeWithError(ex);
