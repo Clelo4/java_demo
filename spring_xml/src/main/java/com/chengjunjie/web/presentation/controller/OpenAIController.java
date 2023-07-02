@@ -4,8 +4,6 @@ import com.chengjunjie.web.application.CustomOpenAiService;
 import com.chengjunjie.web.domain.model.ChatCompletionDto;
 import com.chengjunjie.web.presentation.ControllerConstant;
 import com.theokanning.openai.OpenAiHttpException;
-import com.theokanning.openai.completion.CompletionChoice;
-import com.theokanning.openai.completion.CompletionRequest;
 import com.theokanning.openai.completion.chat.ChatCompletionChunk;
 import com.theokanning.openai.completion.chat.ChatCompletionRequest;
 import com.theokanning.openai.model.Model;
@@ -23,6 +21,8 @@ import java.util.concurrent.Executors;
 @RestController
 @RequestMapping(value = ControllerConstant.openAI)
 public class OpenAIController {
+    private record ErrorResponse(String message) {
+    }
 
     @Autowired
     CustomOpenAiService service;
@@ -48,25 +48,24 @@ public class OpenAIController {
                     .presencePenalty(chatCompletionDto.getPresencePenalty())
                     .messages(chatCompletionDto.getMessages()).build();
 
-            if (chatCompletionDto.getStream()) {
+            Boolean isStream = chatCompletionDto.getStream();
+            if (isStream != null && isStream) {
                 Flowable<ChatCompletionChunk> resultStream = service.streamChatCompletion(completionRequest);
 
                 SseEmitter emitter = new SseEmitter();
                 ExecutorService sseMvcExecutor = Executors.newSingleThreadExecutor();
                 sseMvcExecutor.execute(() -> {
-                    try {
-                        resultStream.doOnComplete(emitter::complete).doOnError(ex -> {
-                                    System.err.println("doOnError: " + ex);
-                                    ex.printStackTrace();
-                                    emitter.completeWithError(ex);
-                                })
-                                .forEach(chatCompletionChunk -> {
+                    resultStream
+                        .doOnComplete(emitter::complete)
+                        .doOnError(exception -> {
+                            ErrorResponse errorResponse = new ErrorResponse("Internal Server Error: " + exception.getMessage());
+                            emitter.send(errorResponse, MediaType.APPLICATION_JSON);
+                            emitter.complete();
+                        })
+                        .forEach(chatCompletionChunk -> {
                             SseEmitter.SseEventBuilder event = SseEmitter.event().data(chatCompletionChunk);
                             emitter.send(event);
                         });
-                    } catch (Exception ex) {
-                        emitter.completeWithError(ex);
-                    }
                 });
                 sseMvcExecutor.shutdown();
 
