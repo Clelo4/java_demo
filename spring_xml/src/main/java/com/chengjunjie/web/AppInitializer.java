@@ -27,8 +27,8 @@ public class AppInitializer implements WebApplicationInitializer {
         characterEncodingFilterRegistration.setAsyncSupported(true);
         characterEncodingFilterRegistration.addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST, DispatcherType.ASYNC), true, "/*");
 
-        DelegatingFilterProxy delegatingFilterProxy = new DelegatingFilterProxy();
-        FilterRegistration.Dynamic delegatingFilterProxyRegistration = servletContext.addFilter("springSecurityFilterChain", delegatingFilterProxy);
-        delegatingFilterProxyRegistration.addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST, DispatcherType.ASYNC), true, "/*");
+//        DelegatingFilterProxy delegatingFilterProxy = new DelegatingFilterProxy();
+//        FilterRegistration.Dynamic delegatingFilterProxyRegistration = servletContext.addFilter("springSecurityFilterChain", delegatingFilterProxy);
+//        delegatingFilterProxyRegistration.addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST, DispatcherType.ASYNC), true, "/*");
     }
 }
