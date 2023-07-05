@@ -1,11 +1,13 @@
 package com.chengjunjie.web.presentation.controller;
 
 import com.chengjunjie.web.presentation.ControllerConstant;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+@PreAuthorize("hasRole('ROLE_USER')")
 @Controller
 @RequestMapping(value = ControllerConstant.user)
 public class UserController {

@@ -7,85 +7,38 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.ProviderManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.*;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Collection;
-
-import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfig {
     @Autowired
-    private AuthenticationProvider authenticationProvider;
+    UserDetailsService userDetailsService;
 
-    private class CustomAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
-
-        protected CustomAuthenticationFilter(String defaultFilterProcessesUrl) {
-            super(defaultFilterProcessesUrl);
-        }
-
-        @Override
-        public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException, IOException, ServletException {
-            Authentication authentication = new Authentication() {
-                @Override
-                public Collection<? extends GrantedAuthority> getAuthorities() {
-                    return null;
-                }
-
-                @Override
-                public Object getCredentials() {
-                    return null;
-                }
-
-                @Override
-                public Object getDetails() {
-                    return null;
-                }
-
-                @Override
-                public Object getPrincipal() {
-                    return null;
-                }
-
-                @Override
-                public boolean isAuthenticated() {
-                    return false;
-                }
-
-                @Override
-                public void setAuthenticated(boolean isAuthenticated) throws IllegalArgumentException {
-
-                }
-
-                @Override
-                public String getName() {
-                    return null;
-                }
-            };
-            return authentication;
-        }
-    }
+    @Autowired
+    AuthenticationManager authenticationManager;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http.sessionManagement(session -> session
+                .sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
+        );
+
         http.exceptionHandling(httpSecurityExceptionHandlingConfigurer -> {
             httpSecurityExceptionHandlingConfigurer.authenticationEntryPoint((request, response, accessDeniedException) -> {
                 response.setContentType(MediaType.APPLICATION_JSON_VALUE);
@@ -103,22 +56,44 @@ public class WebSecurityConfig {
             }));
         });
 
-//        UsernamePasswordAuthenticationFilter
-
-//        http.authenticationProvider(authenticationProvider);
-
-
-        http.authorizeRequests(authorize -> authorize.requestMatchers("/1api/user/**")
-                .authenticated()
-                .and()
-                .addFilter(new CustomAuthenticationFilter("/api/user/**"))
-                .authenticationProvider(authenticationProvider)
+        http.authorizeHttpRequests(authorize -> authorize
+                .requestMatchers("/api/login").permitAll()
+                .requestMatchers("/api/openai/**").permitAll()
+                .anyRequest().authenticated()
         );
 
+        http.formLogin();
+
+        CustomUsernamePasswordAuthenticationFilter customUsernamePasswordAuthenticationFilter = new CustomUsernamePasswordAuthenticationFilter("/api/login");
+        customUsernamePasswordAuthenticationFilter.setAuthenticationManager(authenticationManager);
+
+        customUsernamePasswordAuthenticationFilter.setAuthenticationFailureHandler(new AuthenticationFailureHandler() {
+            @Override
+            public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
+                response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                PrintWriter writer = response.getWriter();
+                writer.write("{ \"code\": 1, \"message\": \"403 forbidden\" }");
+                writer.flush();
+            }
+        });
+        customUsernamePasswordAuthenticationFilter.setAuthenticationSuccessHandler(new AuthenticationSuccessHandler() {
+            @Override
+            public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+                response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                response.setStatus(HttpServletResponse.SC_OK);
+                PrintWriter writer = response.getWriter();
+                writer.write("{ \"code\": 0, \"message\": \"login success\" }");
+                writer.flush();
+            }
+        });
+
+        http.addFilterAt(customUsernamePasswordAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
         http.csrf(AbstractHttpConfigurer::disable);
+
         return http.build();
     }
-
     @Bean
     public UserDetailsService userDetailsService() {
         InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
@@ -127,25 +102,7 @@ public class WebSecurityConfig {
     }
 
     @Bean
-    AuthenticationProvider createAuthenticationProvider() {
-        return new AuthenticationProvider() {
-            @Override
-            public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-                String username = authentication.getName();
-                String password = authentication.getCredentials().toString();
-
-                // Perform your custom authentication logic here...
-
-                // If authentication is successful, create and return an Authentication object
-                // representing the authenticated user
-                return new UsernamePasswordAuthenticationToken(username, password, new ArrayList<>());
-            }
-
-            @Override
-            public boolean supports(Class<?> authentication) {
-                return true;
-//                return authentication.equals(UsernamePasswordAuthenticationToken.class);
-            }
-        };
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
     }
 }
