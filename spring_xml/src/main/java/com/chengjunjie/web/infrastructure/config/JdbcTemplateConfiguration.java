@@ -9,9 +9,6 @@ import javax.sql.DataSource;
 
 @Configuration
 public class JdbcTemplateConfiguration {
-//    @Autowired
-//    DataSource dataSource;
-
     @Bean
     JdbcTemplate createJdbcTemplate(DataSource dataSource) {
         return new JdbcTemplate(dataSource);

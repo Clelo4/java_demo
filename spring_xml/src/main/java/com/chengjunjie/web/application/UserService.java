@@ -1,18 +1,18 @@
 package com.chengjunjie.web.application;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Component;
+import com.chengjunjie.web.domain.model.Result;
+import com.chengjunjie.web.domain.model.User;
+import jakarta.servlet.http.HttpSession;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Component
-public class UserService {
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
+@Service
+public interface UserService {
 
-    public List<String> getAllUser() {
-        String sql = "SELECT username FROM user";
-        return jdbcTemplate.queryForList(sql, String.class);
-    }
+    public Result<Object> isLogin(HttpSession session);
+
+    public Result<User> login(User user);
+
+    public Result<User> getUserById(int id);
 }
