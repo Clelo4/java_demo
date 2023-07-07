@@ -9,8 +9,6 @@ import org.springframework.lang.Nullable;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
-import java.io.PrintWriter;
-
 public class AuthInterceptor implements HandlerInterceptor {
     @Autowired
     private UserService userService;

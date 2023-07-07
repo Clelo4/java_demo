@@ -3,12 +3,14 @@ package com.chengjunjie.web.presentation.controller;
 import com.chengjunjie.web.application.UserService;
 import com.chengjunjie.web.domain.model.Result;
 import com.chengjunjie.web.domain.model.User;
+import com.chengjunjie.web.domain.validator.UserValidator;
 import com.chengjunjie.web.presentation.ControllerConstant;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.Errors;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,6 +24,9 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private UserValidator validator;
+
     @GetMapping(value = "/account", produces = "application/json;charset=UTF-8")
     @ResponseBody
     public String account() {
@@ -34,8 +39,11 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public Result<User> login(@Validated @RequestBody User user, BindingResult errors, HttpServletRequest request) {
+    @Validated
+    public Result<User> login(@RequestBody @Validated User user, Errors errors, HttpServletRequest request) {
+        validator.validate(user, errors);
         Result<User> result;
+
         // 如果校验有错，返回登录失败以及错误信息
         if (errors.hasErrors()) {
             result = new Result<>();
@@ -45,7 +53,7 @@ public class UserController {
         // 调用登录服务
         result = userService.login(user);
         // 如果登录成功，则设定session
-        if (result.isSuccess()) {
+        if (result != null && result.isSuccess()) {
             request.getSession().setAttribute(SESSION_NAME, result.getData());
         }
         return result;

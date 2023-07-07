@@ -5,7 +5,7 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
 @Component
-@PropertySource("classpath:jdbc.properties")
+@PropertySource("classpath:jdbc-${spring.profiles.active:default}.properties")
 public class DatabaseProperties {
     @Value("${jdbc.url}")
     private String url;
