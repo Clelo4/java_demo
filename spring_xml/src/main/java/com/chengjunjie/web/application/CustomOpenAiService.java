@@ -21,7 +21,7 @@ public class CustomOpenAiService extends OpenAiService {
 
     private static OpenAiApi getAPI() {
         String apiKey = System.getenv("OPENAI_API_KEY");
-        if (apiKey == null || apiKey.equals("")) throw new RuntimeException("OPENAI_API_KEY is missing.");
+        if (apiKey == null || apiKey.isEmpty()) throw new RuntimeException("OPENAI_API_KEY is missing.");
 
         ObjectMapper mapper = defaultObjectMapper();
         Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("192.168.8.104", 7890));

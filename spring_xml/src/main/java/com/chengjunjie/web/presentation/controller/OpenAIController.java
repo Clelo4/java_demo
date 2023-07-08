@@ -2,6 +2,7 @@ package com.chengjunjie.web.presentation.controller;
 
 import com.chengjunjie.web.application.CustomOpenAiService;
 import com.chengjunjie.web.domain.model.ChatCompletionDto;
+import com.chengjunjie.web.domain.model.Result;
 import com.chengjunjie.web.presentation.ControllerConstant;
 import com.theokanning.openai.OpenAiHttpException;
 import com.theokanning.openai.completion.chat.ChatCompletionChunk;
@@ -21,16 +22,18 @@ import java.util.concurrent.Executors;
 @RestController
 @RequestMapping(value = ControllerConstant.openAI)
 public class OpenAIController {
-    private record ErrorResponse(String message) {
-    }
+
+    private CustomOpenAiService customOpenAiService;
 
     @Autowired
-    CustomOpenAiService service;
+    public void customOpenAiService(CustomOpenAiService customOpenAiService) {
+        this.customOpenAiService = customOpenAiService;
+    }
 
     @GetMapping(value = "/listModels",
             produces = "application/json;charset=UTF-8")
     public List<Model> listModels() {
-        return service.listModels();
+        return customOpenAiService.listModels();
     }
 
     @PostMapping(
@@ -50,30 +53,29 @@ public class OpenAIController {
 
             Boolean isStream = chatCompletionDto.getStream();
             if (isStream != null && isStream) {
-                Flowable<ChatCompletionChunk> resultStream = service.streamChatCompletion(completionRequest);
+                Flowable<ChatCompletionChunk> resultStream = customOpenAiService.streamChatCompletion(completionRequest);
 
                 SseEmitter emitter = new SseEmitter();
                 ExecutorService sseMvcExecutor = Executors.newSingleThreadExecutor();
-                sseMvcExecutor.execute(() -> {
-                    resultStream
+                sseMvcExecutor.execute(() -> resultStream
                         .doOnComplete(emitter::complete)
                         .doOnError(exception -> {
-                            ErrorResponse errorResponse = new ErrorResponse("Internal Server Error: " + exception.getMessage());
-                            emitter.send(errorResponse, MediaType.APPLICATION_JSON);
+                            Result<?> result = new Result<>();
+                            result.setResultFailed(-1, exception.getMessage());
+                            emitter.send(result, MediaType.APPLICATION_JSON);
                             emitter.complete();
                         })
                         .forEach(chatCompletionChunk -> {
                             SseEmitter.SseEventBuilder event = SseEmitter.event().data(chatCompletionChunk);
                             emitter.send(event);
-                        });
-                });
+                        }));
                 sseMvcExecutor.shutdown();
 
                 return emitter;
             } else {
                 return ResponseEntity.ok()
                         .contentType(MediaType.APPLICATION_JSON)
-                        .body(service.createChatCompletion(completionRequest));
+                        .body(customOpenAiService.createChatCompletion(completionRequest));
             }
         } catch (OpenAiHttpException exception) {
             return ResponseEntity.internalServerError().body(exception.getMessage());

@@ -2,10 +2,10 @@ package com.chengjunjie.web.infrastructure.DAO;
 
 import com.chengjunjie.web.domain.model.User;
 
-import java.util.List;
-
 public interface UserDAO {
     User findById(int id);
+
+    User findByUsername(String username);
 
     void create(User user);
 

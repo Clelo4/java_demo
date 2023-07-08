@@ -8,6 +8,7 @@ import lombok.Data;
 
 @Data
 @JsonIgnoreProperties(value = {"password"}, allowSetters = true)
+@NotNull(message = "用户信息不能为空")
 public class User {
 
     int id;

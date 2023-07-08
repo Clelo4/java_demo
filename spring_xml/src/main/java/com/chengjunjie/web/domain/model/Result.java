@@ -1,15 +1,12 @@
 package com.chengjunjie.web.domain.model;
 
-import lombok.Getter;
-import lombok.Setter;
+import com.chengjunjie.web.infrastructure.config.StatusCodeProperties;
+import lombok.Data;
 
-import java.io.Serializable;
-
-@Setter
-@Getter
-public class Result<T> implements Serializable {
+@Data
+public class Result<T> {
     private String message;
-    private boolean success;
+    private int code;
     private T data;
 
     /**
@@ -19,7 +16,7 @@ public class Result<T> implements Serializable {
      */
     public void setResultSuccess(String msg) {
         this.message = msg;
-        this.success = true;
+        this.code = StatusCodeProperties.SUCCESS;
         this.data = null;
     }
 
@@ -31,7 +28,7 @@ public class Result<T> implements Serializable {
      */
     public void setResultSuccess(String msg, T data) {
         this.message = msg;
-        this.success = true;
+        this.code = StatusCodeProperties.SUCCESS;
         this.data = data;
     }
 
@@ -40,9 +37,13 @@ public class Result<T> implements Serializable {
      *
      * @param msg 消息
      */
-    public void setResultFailed(String msg) {
+    public void setResultFailed(int errCode, String msg) {
         this.message = msg;
-        this.success = false;
+        this.code = errCode;
         this.data = null;
+    }
+
+    public boolean isSuccess() {
+        return this.code == 0;
     }
 }

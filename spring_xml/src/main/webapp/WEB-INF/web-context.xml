@@ -12,6 +12,8 @@
     <mvc:interceptors>
         <mvc:interceptor>
             <mvc:mapping path="/api/**"/>
+            <mvc:exclude-mapping path="/api/user/login"/>
+            <mvc:exclude-mapping path="/api/openai/**"/>
             <bean class="com.chengjunjie.web.presentation.interceptor.AuthInterceptor"/>
         </mvc:interceptor>
     </mvc:interceptors>

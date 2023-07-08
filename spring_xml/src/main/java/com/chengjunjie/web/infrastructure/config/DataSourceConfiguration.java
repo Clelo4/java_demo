@@ -10,8 +10,13 @@ import javax.sql.DataSource;
 
 @Configuration
 public class DataSourceConfiguration {
+    private DatabaseProperties databaseProperties;
+
     @Autowired
-    DatabaseProperties databaseProperties;
+    public void setDatabaseProperties(DatabaseProperties databaseProperties) {
+        this.databaseProperties = databaseProperties;
+    }
+
     @Bean
     DataSource createDataSource() {
         HikariConfig config = new HikariConfig();

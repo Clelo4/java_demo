@@ -1,24 +1,36 @@
 package com.chengjunjie.web.infrastructure.DAO;
 
-
 import com.chengjunjie.web.domain.model.User;
 import com.chengjunjie.web.infrastructure.DaoMapper.UserRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public class UserDAOImpl implements UserDAO {
-    @Autowired
     private JdbcTemplate jdbcTemplate;
+
+    @Autowired
+    public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
 
     @Override
     public User findById(int id) {
         try {
             String sql = "SELECT * FROM user WHERE id = ?";
             return jdbcTemplate.queryForObject(sql, new UserRowMapper(), id);
-        } catch (IncorrectResultSizeDataAccessException ex) {
+        } catch (Exception ex) {
+            return null;
+        }
+    }
+
+    @Override
+    public User findByUsername(String username) {
+        try {
+            String sql = "SELECT * FROM user WHERE username = ?";
+            return jdbcTemplate.queryForObject(sql, new UserRowMapper(), username);
+        } catch (Exception ex) {
             return null;
         }
     }

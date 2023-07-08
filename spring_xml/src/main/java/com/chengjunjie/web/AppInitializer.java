@@ -4,14 +4,13 @@ import jakarta.servlet.*;
 import org.springframework.web.WebApplicationInitializer;
 import org.springframework.web.context.support.XmlWebApplicationContext;
 import org.springframework.web.filter.CharacterEncodingFilter;
-import org.springframework.web.filter.DelegatingFilterProxy;
 import org.springframework.web.servlet.DispatcherServlet;
 
 import java.util.EnumSet;
 
 public class AppInitializer implements WebApplicationInitializer {
     @Override
-    public void onStartup(ServletContext servletContext) throws ServletException {
+    public void onStartup(ServletContext servletContext) {
         XmlWebApplicationContext dispatcherContext = new XmlWebApplicationContext();
         dispatcherContext.setConfigLocations("/WEB-INF/web-context.xml", "/WEB-INF/app-context.xml");
 
@@ -27,8 +26,10 @@ public class AppInitializer implements WebApplicationInitializer {
         characterEncodingFilterRegistration.setAsyncSupported(true);
         characterEncodingFilterRegistration.addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST, DispatcherType.ASYNC), true, "/*");
 
-//        DelegatingFilterProxy delegatingFilterProxy = new DelegatingFilterProxy();
-//        FilterRegistration.Dynamic delegatingFilterProxyRegistration = servletContext.addFilter("springSecurityFilterChain", delegatingFilterProxy);
-//        delegatingFilterProxyRegistration.addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST, DispatcherType.ASYNC), true, "/*");
+/*
+        DelegatingFilterProxy delegatingFilterProxy = new DelegatingFilterProxy();
+        FilterRegistration.Dynamic delegatingFilterProxyRegistration = servletContext.addFilter("springSecurityFilterChain", delegatingFilterProxy);
+        delegatingFilterProxyRegistration.addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST, DispatcherType.ASYNC), true, "/*");
+*/
     }
 }
