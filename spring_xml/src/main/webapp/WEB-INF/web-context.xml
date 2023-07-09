@@ -11,10 +11,13 @@
 
     <mvc:interceptors>
         <mvc:interceptor>
+            <mvc:mapping path="/**"/>
+            <bean class="com.chengjunjie.web.presentation.interceptor.RequestLoggingInterceptor"/>
+        </mvc:interceptor>
+        <mvc:interceptor>
             <mvc:mapping path="/api/**"/>
             <mvc:exclude-mapping path="/api/user/login"/>
-            <mvc:exclude-mapping path="/api/openai/**"/>
-            <bean class="com.chengjunjie.web.presentation.interceptor.AuthInterceptor"/>
+            <bean class="com.chengjunjie.web.presentation.interceptor.SecurityInterceptor"/>
         </mvc:interceptor>
     </mvc:interceptors>
 </beans>

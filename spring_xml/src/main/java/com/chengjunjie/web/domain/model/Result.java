@@ -27,8 +27,7 @@ public class Result<T> {
      * @param data 数据体
      */
     public void setResultSuccess(String msg, T data) {
-        this.message = msg;
-        this.code = StatusCodeProperties.SUCCESS;
+        this.setResultSuccess(msg);
         this.data = data;
     }
 

@@ -3,13 +3,13 @@ package com.chengjunjie.web.domain.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+
+import java.io.Serializable;
 
 @Data
 @JsonIgnoreProperties(value = {"password"}, allowSetters = true)
-@NotNull(message = "用户信息不能为空")
-public class User {
+public class User implements Serializable {
 
     int id;
 

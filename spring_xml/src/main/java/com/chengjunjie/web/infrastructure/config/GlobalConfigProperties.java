@@ -11,4 +11,10 @@ import org.springframework.stereotype.Component;
 public class GlobalConfigProperties {
     @Value("${USER_SESSION_NAME}")
     private String userSessionName;
+
+    @Value("${CSRF_TOKEN}")
+    private String csrfTokenName;
+
+    @Value("${COOKIE_SECURE}")
+    private boolean cookieSecure;
 }

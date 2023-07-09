@@ -2,19 +2,24 @@ package com.chengjunjie.web.infrastructure.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.session.MapSessionRepository;
-import org.springframework.session.config.annotation.web.http.EnableSpringHttpSession;
-import org.springframework.session.web.http.CookieSerializer;
-import org.springframework.session.web.http.DefaultCookieSerializer;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.session.jdbc.config.annotation.web.http.EnableJdbcHttpSession;
+import org.springframework.session.web.http.CookieSerializer;import org.springframework.session.web.http.DefaultCookieSerializer;
+import org.springframework.transaction.PlatformTransactionManager;
 
-import java.util.concurrent.ConcurrentHashMap;
+import javax.sql.DataSource;
 
 /**
  * session配置类
  */
-@Configuration
-@EnableSpringHttpSession
+@Configuration(proxyBeanMethods=false)
+@EnableJdbcHttpSession
 public class SessionConfig {
+
+    @Bean
+    public PlatformTransactionManager transactionManager(DataSource dataSource) {
+        return new DataSourceTransactionManager(dataSource);
+    }
 
     /**
      * 设定cookie序列化器的属性
@@ -28,17 +33,10 @@ public class SessionConfig {
         // cookie生效路径
         serializer.setCookiePath("/");
         // 设置是否只能服务器修改，浏览器端不能修改
-        serializer.setUseHttpOnlyCookie(false);
+        serializer.setUseHttpOnlyCookie(true);
         // 最大生命周期的单位是分钟
         serializer.setCookieMaxAge(24 * 60 * 60);
-        return serializer;
-    }
 
-    /**
-     * 注册序列化器
-     */
-    @Bean
-    public MapSessionRepository sessionRepository() {
-        return new MapSessionRepository(new ConcurrentHashMap<>());
+        return serializer;
     }
 }

@@ -6,6 +6,7 @@ import com.chengjunjie.web.domain.model.User;
 import com.chengjunjie.web.infrastructure.DAO.UserDAO;
 import com.chengjunjie.web.infrastructure.config.GlobalConfigProperties;
 import com.chengjunjie.web.infrastructure.config.StatusCodeProperties;
+import jakarta.annotation.Nullable;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,13 +28,13 @@ public class UserServiceImplement implements UserService {
         this.globalConfigProperties = globalConfigProperties;
     }
 
-    public Result<User> isLogin(@NotNull HttpSession session) {
-        User user = (User) session.getAttribute(globalConfigProperties.getUserSessionName());
+    public Result<User> isLogin(@Nullable HttpSession session) {
+        Object userObj;
         Result<User> res = new Result<>();
-        if (user == null) {
+        if (session == null || ((userObj = session.getAttribute(globalConfigProperties.getUserSessionName())) == null)) {
             res.setResultFailed(StatusCodeProperties.NEED_LOGIN, "非法访问");
         } else {
-            res.setResultSuccess("验证成功", user);
+            res.setResultSuccess("验证成功", (User) userObj);
         }
         return res;
     }

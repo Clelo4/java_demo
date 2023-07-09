@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class HttpCodeController {
     @GetMapping(value = "/{code}")
     public ResponseEntity<String> getCode(@PathVariable int code) {
-        return new ResponseEntity<>(String.valueOf(code), HttpStatusCode.valueOf(code));
+        throw new RuntimeException("123");
+//        return new ResponseEntity<>(String.valueOf(code), HttpStatusCode.valueOf(code));
     }
 }
