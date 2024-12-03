@@ -18,7 +18,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>20</java.version>
-        <spring.version>6.0.9</spring.version>
+        <spring.version>6.1.14</spring.version>
         <spring.security>6.1.1</spring.security>
         <tomcat.version>10.1.6</tomcat.version>
         <pebble.version>3.2.0</pebble.version>
